@@ -22,7 +22,7 @@ contract DiamondDeployer is Test, IDiamondCut {
     StakingContract dStakingContract;
     RewardToken dRewardToken;
 
-    function testDeployDiamond() public {
+    function setUp() public {
         //deploy facets
         dStakeTokenFacet = new StakeTokenFacet();
         dStakingContract = new StakingContract();
@@ -35,7 +35,7 @@ contract DiamondDeployer is Test, IDiamondCut {
         //upgrade diamond with facets
 
         //build cut struct
-        FacetCut[] memory cut = new FacetCut[](2);
+        FacetCut[] memory cut = new FacetCut[](4);
 
         cut[0] = (
             FacetCut({
@@ -69,13 +69,7 @@ contract DiamondDeployer is Test, IDiamondCut {
             })
         );
 
-          cut[4] = (
-            FacetCut({
-                facetAddress: address(ownerF),
-                action: FacetCutAction.Add,
-                functionSelectors: generateSelectors("OwnershipFacet")
-            })
-        );
+       
 
         //upgrade diamond
         IDiamondCut(address(diamond)).diamondCut(cut, address(0x0), "");
@@ -83,6 +77,29 @@ contract DiamondDeployer is Test, IDiamondCut {
         //call a function
         DiamondLoupeFacet(address(diamond)).facetAddresses();
     }
+     function testStaking() public returns(address){
+            StakeTokenFacet st = StakeTokenFacet(address(diamond));
+
+            StakingContract sc = StakingContract(address(diamond));
+
+            st.balanceOf(address(this));
+
+            st.balanceOf(address(msg.sender));
+
+            st.mint(msg.sender, 10000);
+
+            st.transfer(msg.sender, 1000);
+
+            return msg.sender;
+        }
+
+        function testName() public {
+            StakeTokenFacet st = StakeTokenFacet(address(diamond));
+
+            string memory tokenName = st.name();
+
+            assertEq(tokenName, "Stake Token");
+        }
 
     function generateSelectors(
         string memory _facetName

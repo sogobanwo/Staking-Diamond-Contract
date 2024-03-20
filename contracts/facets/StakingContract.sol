@@ -54,6 +54,10 @@ contract StakingContract {
         emit RewardClaimed(msg.sender, _stakeAmount , _rewardAmount);
     }
 
+    function getAmountStaked() external returns (uint256){
+        return sc.amountStaked[msg.sender];
+    }
+
     function calculateReward(uint256 stakedAmount) internal pure returns (uint256) {
         uint256 rewardAmount = (stakedAmount * 120) / 100;
         return rewardAmount;
